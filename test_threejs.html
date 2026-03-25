@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js 加载测试</title>
+</head>
+<body>
+    <h1>Three.js 加载测试</h1>
+    <div id="result">正在加载 Three.js...</div>
+    
+    <script src="three.min.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            const resultDiv = document.getElementById('result');
+            
+            if (typeof THREE !== 'undefined') {
+                resultDiv.innerHTML = `
+                    <h2 style="color: green;">✅ Three.js 加载成功！</h2>
+                    <p>THREE 版本: <strong>${THREE.REVISION}</strong></p>
+                    <p>THREE 对象: <strong>${Object.keys(THREE).length} 个属性</strong></p>
+                    <p>THREE.Scene: <strong>${typeof THREE.Scene}</strong></p>
+                    <p>THREE.WebGLRenderer: <strong>${typeof THREE.WebGLRenderer}</strong></p>
+                `;
+                
+                // 尝试创建一个简单的场景
+                try {
+                    const scene = new THREE.Scene();
+                    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                    const renderer = new THREE.WebGLRenderer();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    document.body.appendChild(renderer.domElement);
+                    
+                    const geometry = new THREE.BoxGeometry(1, 1, 1);
+                    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                    const cube = new THREE.Mesh(geometry, material);
+                    scene.add(cube);
+                    
+                    camera.position.z = 5;
+                    
+                    resultDiv.innerHTML += `
+                        <h3 style="color: blue;">✅ 3D 场景创建成功！</h3>
+                        <p>立方体已添加到场景中</p>
+                    `;
+                    
+                    function animate() {
+                        requestAnimationFrame(animate);
+                        cube.rotation.x += 0.01;
+                        cube.rotation.y += 0.01;
+                        renderer.render(scene, camera);
+                    }
+                    animate();
+                    
+                    resultDiv.innerHTML += `
+                        <h3 style="color: blue;">✅ 动画循环启动成功！</h3>
+                        <p>您应该能看到一个旋转的绿色立方体</p>
+                    `;
+                } catch (e) {
+                    resultDiv.innerHTML += `
+                        <h3 style="color: red;">❌ 3D 场景创建失败：</h3>
+                        <pre>${e.message}</pre>
+                    `;
+                }
+            } else {
+                resultDiv.innerHTML = `
+                    <h2 style="color: red;">❌ Three.js 加载失败！</h2>
+                    <p>THREE 对象不存在</p>
+                    <p>请检查浏览器控制台的错误信息（按 F12）</p>
+                `;
+            }
+        });
+        
+        // 检查加载错误
+        window.addEventListener('error', function(e) {
+            if (e.target && e.target.tagName === 'SCRIPT') {
+                console.error('脚本加载失败:', e.target.src, e);
+                document.getElementById('result').innerHTML += `
+                    <h2 style="color: red;">❌ 脚本加载失败：</h2>
+                    <p>源文件: ${e.target.src}</p>
+                    <p>错误: ${e.message || '未知错误'}</p>
+                `;
+            }
+        }, true);
+    </script>
+</body>
+</html>
